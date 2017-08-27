@@ -1,0 +1,35 @@
+{% extends '_common/base.html'%}
+{% block main %}
+    <h1 class="text-center">CODING CHALLENGE</h1>
+    <hr>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xs-6">
+                <form class="form" method="post" action="{% url 'cca:check-str' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="str-input">
+                            Cadena de caracteres de entrada
+                        </label>
+                        <textarea id="str-input" class="form-control" rows="20"
+                                  name="str-input">{{ input }}</textarea>
+                    </div>
+                    <button class="btn btn-primary pull-right">INGRESAR CADENA</button>
+                </form>
+            </div>
+            {% if not error %}
+                <div class="col-xs-6 {% if success_count %} bg-success {% endif %}">
+                <h3>Resultado</h3>
+                    {% for s, n in success_count.items %}
+                        {{ s }} {{ n }} <br>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="col-xs-6 bg-danger">
+                <h3>Error</h3>
+                    {{ error_message }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
