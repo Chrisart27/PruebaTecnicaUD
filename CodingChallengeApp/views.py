@@ -1,5 +1,8 @@
+from django.http import HttpResponse
 from django.shortcuts import render
-from CodingChallengeApp.utils import count_str
+from django.views.decorators.csrf import csrf_exempt
+
+from CodingChallengeApp.utils import count_str, save_pdf, set_xml
 from CodingChallengeApp.models import Result
 
 
@@ -7,6 +10,7 @@ def index(request):
     return render(request, 'CodingChallengeApp/index.html')
 
 
+@csrf_exempt
 def check_str_count(request):
     if request.method == 'POST':
         sti = request.POST.get('str-input', '')
@@ -27,7 +31,7 @@ def check_str_count(request):
                             str_list.append(s)
                     if len(counter) >= 3:
                         success_count = count_str(counter, str_list, max_num)
-                        res = Result(input=sti,success=True)
+                        res = Result(input=sti, success=True)
                         i = 0
                         for s, n in success_count.items():
                             if i == 0:
@@ -40,47 +44,48 @@ def check_str_count(request):
                                 res.third = s
                                 res.third_count = n
                             i += 1
-                        res.save()
-                        return render(request, 'CodingChallengeApp/index.html', {'input': sti,
-                                                                                 'success_count': success_count})
+                        context_dict = {'input': sti, 'success_count': success_count}
+                        set_xml(context_dict, res)
+                        return HttpResponse(save_pdf(context_dict, res), status=200)
                     else:
                         error_msg = 'La cadena debe tener mínimo 3 caracteres diferentes'
-                        Result(
+                        res = Result(
                             input=sti,
                             success=False,
                             error_msg=error_msg
-                        ).save()
-                        return render(request, 'CodingChallengeApp/index.html',
-                                      {'error_message': error_msg,
-                                       'error': True, 'input': sti})
+                        )
+                        context_dict = {'error_message': error_msg, 'error': True, 'input': sti}
+                        set_xml(context_dict, res)
+                        return HttpResponse(save_pdf(context_dict, res),status=200)
                 else:
                     error_msg = 'La cadena debe estar compuesta de minúsculas únicamente'
-                    Result(
+                    res = Result(
                         input=sti,
                         success=False,
                         error_msg=error_msg
-                    ).save()
-                    return render(request, 'CodingChallengeApp/index.html',
-                                  {'error_message': error_msg,
-                                   'error': True, 'input': sti})
+                    )
+                    context_dict = {'error_message': error_msg, 'error': True, 'input': sti}
+                    set_xml(context_dict, res)
+                    return HttpResponse(save_pdf(context_dict, res),status=200)
             else:
                 error_msg = 'La cadena debe estar compuesta únicamente de letras'
-                Result(
+                res = Result(
                     input=sti,
                     success=False,
                     error_msg=error_msg
-                ).save()
-                return render(request, 'CodingChallengeApp/index.html',
-                              {'error_message': error_msg,
-                               'error': True, 'input': sti})
+                )
+                context_dict = {'error_message': error_msg, 'error': True, 'input': sti}
+                set_xml(context_dict, res)
+                return HttpResponse(save_pdf(context_dict, res),status=200)
         else:
             error_msg = 'La cadena debe tener minimo 4 caracteres y máximo 10.000'
-            Result(
+            res = Result(
                 input=sti,
                 success=False,
                 error_msg=error_msg
-            ).save()
-            return render(request, 'CodingChallengeApp/index.html',
-                          {'error_message': error_msg, 'error': True, 'input': sti})
+            )
+            context_dict = {'error_message': error_msg, 'error': True, 'input': sti}
+            set_xml(context_dict, res)
+            return HttpResponse(save_pdf(context_dict, res),status=200)
     else:
         return render(request, '_common/error.html', {'error_message': 'Method not allowed'}, status=405)

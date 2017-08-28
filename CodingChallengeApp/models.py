@@ -12,6 +12,8 @@ class Result(models.Model):
     success = models.BooleanField(verbose_name='¿Satisfactoria?')
     error_msg = models.CharField(max_length=100, verbose_name='Mensaje de error', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de ejecución')
+    pdf = models.FileField(verbose_name='PDF generado', upload_to='pdf')
+    xml = models.FileField(verbose_name='XML generado', upload_to='xml')
 
     def __str__(self):
         end = 'satisfactoria' if self.success else 'error'
