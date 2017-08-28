@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
-from CodingChallengeApp.utils import count_str, save_pdf, set_xml
+from CodingChallengeApp.utils import count_str, save_pdf, set_xml, send_email
 from CodingChallengeApp.models import Result
 
 
@@ -46,6 +46,7 @@ def check_str_count(request):
                             i += 1
                         context_dict = {'input': sti, 'success_count': success_count}
                         set_xml(context_dict, res)
+                        # send_email(context_dict, res)
                         return HttpResponse(save_pdf(context_dict, res), status=200)
                     else:
                         error_msg = 'La cadena debe tener mínimo 3 caracteres diferentes'
@@ -56,6 +57,7 @@ def check_str_count(request):
                         )
                         context_dict = {'error_message': error_msg, 'error': True, 'input': sti}
                         set_xml(context_dict, res)
+                        # send_email(context_dict, res)
                         return HttpResponse(save_pdf(context_dict, res),status=200)
                 else:
                     error_msg = 'La cadena debe estar compuesta de minúsculas únicamente'
@@ -66,6 +68,7 @@ def check_str_count(request):
                     )
                     context_dict = {'error_message': error_msg, 'error': True, 'input': sti}
                     set_xml(context_dict, res)
+                    # send_email(context_dict, res)
                     return HttpResponse(save_pdf(context_dict, res),status=200)
             else:
                 error_msg = 'La cadena debe estar compuesta únicamente de letras'
@@ -76,6 +79,7 @@ def check_str_count(request):
                 )
                 context_dict = {'error_message': error_msg, 'error': True, 'input': sti}
                 set_xml(context_dict, res)
+                # send_email(context_dict, res)
                 return HttpResponse(save_pdf(context_dict, res),status=200)
         else:
             error_msg = 'La cadena debe tener minimo 4 caracteres y máximo 10.000'
@@ -86,6 +90,7 @@ def check_str_count(request):
             )
             context_dict = {'error_message': error_msg, 'error': True, 'input': sti}
             set_xml(context_dict, res)
+            # send_email(context_dict, res)
             return HttpResponse(save_pdf(context_dict, res),status=200)
     else:
         return render(request, '_common/error.html', {'error_message': 'Method not allowed'}, status=405)

@@ -17,9 +17,11 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from django.conf.urls.static import static
 from CodingChallengeApp import urls as cca_urls
+from ApiChallengeApp import urls as aca_urls
 from PruebaTecnicaUD import settings
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^cca/', include(cca_urls, namespace='cca')),
+    url(r'^aca/', include(aca_urls, namespace='aca')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

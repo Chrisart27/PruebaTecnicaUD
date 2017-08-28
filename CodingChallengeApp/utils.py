@@ -4,8 +4,40 @@ from django.db.transaction import atomic
 from django.template.loader import get_template
 import pdfkit
 import bs4
+import httplib2
+import os
 
-from PruebaTecnicaUD.settings import WKHTML2PDF
+from apiclient import discovery
+from oauth2client import client
+from oauth2client import tools
+from oauth2client.file import Storage
+
+# If modifying these scopes, delete your previously saved credentials
+# at ~/.credentials/gmail-python-quickstart.json
+from PruebaTecnicaUD.settings import BASE_DIR, WKHTML2PDF
+
+SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
+CLIENT_SECRET_FILE = 'client_secret.json'
+APPLICATION_NAME = 'Gmail API Python Quickstart'
+
+def get_credentials():
+    """Gets valid user credentials from storage.
+
+    If nothing has been stored, or if the stored credentials are invalid,
+    the OAuth2 flow is completed to obtain the new credentials.
+
+    Returns:
+        Credentials, the obtained credential.
+    """
+    credential_dir = os.path.join(BASE_DIR, '.credentials')
+    if not os.path.exists(credential_dir):
+        os.makedirs(credential_dir)
+    credential_path = os.path.join(credential_dir, 'gmail-python.json')
+
+    store = Storage(credential_path)
+    credentials = store.get()
+    return credentials
+
 
 
 # Éste método se encarga de generar el resultado del problema de HanckerRank llamado Most Common
@@ -91,3 +123,26 @@ def save_pdf(context_dict, res):
     pdf = pdfkit.from_string(html, False, configuration=config)
     res.pdf.save('pdf_res.pdf', ContentFile(pdf))
     return html
+
+
+# Én este método envia el email con los resultados
+def send_email(context_dict, res):
+    message = 'Entrada: ' + context_dict['input'] + ' Salida: '
+
+    if 'success_count' in context_dict:
+        message += 'satisfactorio, Más común: ' + res.first
+        message += ', ' + str(res.first_count)
+        message += ' Segundo más común: ' + res.second
+        message += ', ' + str(res.second_count)
+        message += ' Tercero más común: ' + res.third
+        message += ', ' + str(res.third_count)
+    else:
+        message += 'error, ' + context_dict['error_message']
+
+    credentials = get_credentials()
+    http = credentials.authorize(httplib2.Http())
+    service = discovery.build('gmail', 'v1', http=http)
+    try:
+        service.users().messages().send(userId='me', body=message).execute()
+    except Exception as e:
+        print(e)

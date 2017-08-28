@@ -1,0 +1,10 @@
+{% extends '_common/base.html' %}
+{% block main %}
+    <h1 class="text-center">Seleccione un partido político</h1>
+    <hr>
+    <div class="list-group">
+        {% for pp in results %}
+            <a href="{% url 'aca:candidates' %}?id={{ pp.id }}&name={{ pp.name }}" class="list-group-item" style="cursor: pointer;">{{ pp.name }}</a>
+        {% endfor %}
+    </div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends '_common/base.html' %}
+{% block main %}
+    <h1 class="text-center">Seleccione los candidatos que desee</h1>
+    <hr>
+    <div class="container-fluid">
+        <form method="post" action="{% url 'aca:selection' %}">
+            <input hidden name="pp-name" value="{{ pp_name }}">
+            {% for c in results %}
+                <div class="checkbox">
+                    <label><input name="selected-names" type="checkbox" value="{{ c.nombre_completo }}">{{ c.nombre_completo }}</label>
+                </div>
+            {% endfor %}
+            <button class="btn btn-primary">SELECCIONAR</button>
+        </form>
+    </div>
+{% endblock %}
